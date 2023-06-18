@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+set -x
 
 # GitHub Docker Deploy
 # 
@@ -38,10 +40,27 @@ echo "Preparing to Deploy Repository ${GIT_REPO}..."
 needs_build=false
 if [ -d ./.git ]; then
   echo "Repository already cloned. Checking for changes..."
-  
+  git fetch
+  changed_files=$(git diff origin/${GIT_BRANCH} --name-only )
+  if [ -n "${changed_files}" ]; then
+    echo "Changes detected.."
+    git pull
+    needs_build=true
+  else:
+    echo "No changes detected."
+  fi
 else
   echo "Repository is not cloned. Cloning..."
   git clone ${GIT_REPO} -b ${GIT_BRANCH} --depth 1 .
   needs_build=true
 fi
+
+if [ "${needs_build}" = true ]; then
+  echo "The code needs to be built. Building..."
+  ${BUILD_COMMAND}
+fi
+
+echo "Running..."
+${RUN_COMMAND}
+
  
