@@ -11,14 +11,7 @@ set -e
 # A script to deploy code from a GitHub repository to a Docker containe without  
 # the need to create, update, and host a Docker container image.
 #
-# The script attempts to:
-# - Clone the repository if it has not been cloned.
-# - Otherwise, pull changes from the repository.
-# - Build the code, if code changed, with the specified command.
-# - Run the specified command to start the app.
-#
-# To avoid the need to clone the repository multiple times, it is advised to
-# create a persistent volume for the code. The volume should be mapped to the
+# Create a persistent volume for the code. The volume should be mapped to the
 # same location as the working directory.
 #
 # Usage
@@ -38,30 +31,18 @@ echo "Preparing to Deploy Repository ${GIT_REPO}..."
 
 needs_build=false
 if [ -d ./.git ]; then
-  echo "Repository already cloned. Checking for changes..."
+  echo "Repository already cloned. Pulling changes..."
   git fetch
-  changed_files=$(git diff origin/${GIT_BRANCH} --name-only )
-  if [ -n "${changed_files}" ]; then
-    echo "Changes detected.."
-    git pull
-    needs_build=true
-  else
-    echo "No changes detected."
-  fi
+  git pull --force
 else
   echo "Repository is not cloned. Cloning..."
   git clone ${GIT_REPO} -b ${GIT_BRANCH} --depth 1 .
-  needs_build=true
 fi
 
-if [ "${needs_build}" = true ]; then
-  echo "The code needs to be built. Building..."
-  echo "Executing \$ ${BUILD_COMMAND}"
-  /bin/sh -c "${BUILD_COMMAND}"
-fi
+echo "Building..."
+echo "Executing \$ ${BUILD_COMMAND}"
+/bin/sh -c "${BUILD_COMMAND}"
 
 echo "Running..."
 echo "Executing \$ ${RUN_COMMAND}"
 /bin/sh -c "${RUN_COMMAND}"
-
- 
