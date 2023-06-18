@@ -45,7 +45,7 @@ if [ -d ./.git ]; then
     echo "Changes detected.."
     git pull
     needs_build=true
-  else:
+  else
     echo "No changes detected."
   fi
 else
