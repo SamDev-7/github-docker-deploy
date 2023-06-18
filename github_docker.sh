@@ -27,8 +27,6 @@
 # - BUILD_COMMAND - Required - The command to build the code
 # - GIT_REPO      - Required - The repo to deploy (e.g. https://github.com/someuser/somerepo.git)
 # - GIT_BRANCH    - Required - The branch to deploy (e.g. master)
-# - GITHUB_TOKEN  - Optional - A personal access token if the repo is private
-# - GITHUB_USER   - Optional - The username associated with the token
 # 2. (Optional) Create a writable volume mapped to the working directory.
 # 3. Setup docker to run the following command per startup.
 #   bash <(curl -s https://sh.samliu.dev/github_docker.sh)
@@ -37,3 +35,12 @@
 
 echo "Preparing to Deploy Repository ${GIT_REPO}..."
 
+needs_build=false
+if [ -d ./.git ]; then
+  echo "Repository already cloned. Checking for changes..."
+  
+else
+  echo "Repository is not cloned. Cloning..."
+  git clone ${GIT_REPO} -b ${GIT_BRANCH} --depth 1 .
+  needs_build=true
+fi
