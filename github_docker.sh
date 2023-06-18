@@ -56,10 +56,12 @@ fi
 
 if [ "${needs_build}" = true ]; then
   echo "The code needs to be built. Building..."
+  echo "Executing \$ ${BUILD_COMMAND}"
   ${BUILD_COMMAND}
 fi
 
 echo "Running..."
+echo "Executing \$ ${RUN_COMMAND}"
 ${RUN_COMMAND}
 
  
